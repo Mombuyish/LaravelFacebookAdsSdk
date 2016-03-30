@@ -23,7 +23,7 @@ $ composer require yish/laravel-facebook-php-ads-sdk
 ```
 
 # functions
-Reference FacebookAds\Object\Fields\AdAccountFields consts.
+Reference `FacebookAds\Object\Fields\AdAccountFields` consts.
 ```
   FacebookAds::getAdAccountList($facebookToken, ['ACCOUNT_ID', 'BUSINESS']);
 ```
@@ -32,7 +32,7 @@ or you can do on string for one.
   FacebookAds::getAdAccountList($facebookToken, 'ACCOUNT_ID');
 ```
 
-Reference FacebookAds\Object\Fields\CampaignFields consts.
+Reference `FacebookAds\Object\Fields\CampaignFields` consts.
 ```
   FacebookAds::getCampaignList($facebookToken, $account_id, ['OBJECTIVE', 'NAME']);
 ```
