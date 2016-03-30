@@ -21,6 +21,17 @@ $ composer require yish/laravel-facebook-php-ads-sdk
   'FacebookAds' => Yish\LaravelFacebookAdsSdk\Facades\LaravelFacebookAdsSdk::class,
 ```
 
+## config publish
+```
+$ php artisan vendor:publish
+```
+.env
+```
+FB_APP_ID=
+FB_APP_SECRET=
+```
+
+
 # functions
 Reference `FacebookAds\Object\Fields\AdAccountFields` consts.
 ```
