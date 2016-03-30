@@ -40,4 +40,14 @@ or you can do on string for one.
   FacebookAds::getCampaignList($facebookToken, $account_id, 'OBJECTIVE');
 ```
 
+# Exceptions
+if parameters is empty, you will got error *string*, I hope you handle this exceptions.
+```
+[
+    'The params field is required.'
+]
+```
+
 continue...
+
+
