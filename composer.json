@@ -9,5 +9,10 @@
     ],
     "require": {
         "facebook/php-ads-sdk": "^2.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Yish\\LaravelFacebookAdsSdk\\": "src/"
+        }
     }
 }
