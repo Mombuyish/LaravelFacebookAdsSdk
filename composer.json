@@ -1,0 +1,13 @@
+{
+    "name": "yish/laravel-facebook-php-ads-sdk",
+    "description": "Facebook ads api sdk for laravel",
+    "authors": [
+        {
+            "name": "Yish",
+            "email": "mombuartworks@gmail.com"
+        }
+    ],
+    "require": {
+        "facebook/php-ads-sdk": "^2.5"
+    }
+}
