@@ -7,7 +7,6 @@ This project is developing now.
     }
 ```
 
-
 # Installation
 ```
 $ composer require yish/laravel-facebook-php-ads-sdk
