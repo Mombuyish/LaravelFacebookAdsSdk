@@ -1,6 +1,7 @@
 {
     "name": "yish/laravel-facebook-php-ads-sdk",
     "description": "Facebook ads api sdk for laravel",
+    "keywords": ["facebook", "ads", "sdk", "laravel"],
     "authors": [
         {
             "name": "Yish",
@@ -8,6 +9,7 @@
         }
     ],
     "require": {
+        "php": ">=7.0.0",
         "facebook/php-ads-sdk": "^2.5"
     },
     "autoload": {
