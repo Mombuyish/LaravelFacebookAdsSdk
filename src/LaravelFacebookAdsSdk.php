@@ -5,6 +5,7 @@ namespace Yish\LaravelFacebookAdsSdk;
 use FacebookAds\Object\AdAccount;
 use FacebookAds\Object\AdUser;
 use FacebookAds\Object\Fields\AdAccountFields;
+use FacebookAds\Object\Fields\CampaignFields;
 
 class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
 {
@@ -12,8 +13,8 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      * @var
      */
     protected $config;
-
     /**
+     * You can change prefix words when facebook update.
      * @var string
      */
     protected $prefix = 'act_';
@@ -22,11 +23,16 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      * @var AdAccountFields
      */
     private $accountFields;
+    /**
+     * @var CampaignFields
+     */
+    private $campaignFields;
 
-    public function __construct($config, AdAccountFields $accountFields)
+    public function __construct($config, AdAccountFields $accountFields, CampaignFields $campaignFields)
     {
         $this->config = $config;
         $this->accountFields = $accountFields;
+        $this->campaignFields = $campaignFields;
     }
 
     protected function getConstColumns($consts = [], $type)
