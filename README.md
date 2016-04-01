@@ -59,6 +59,17 @@ if parameters is empty, you will got error *string*, I hope you handle this exce
 ]
 ```
 
+# Transform
+Transform AdAccount  status you can call this:
+```
+//reference: https://developers.facebook.com/docs/marketing-api/reference/ad-account/#Reading
+//account_status, Status of the account 
+1 = ACTIVE
+2 = DISABLED
+3 = UNSETTLED
+....
+    FacebookAds::transAdAccountStatus($adaccount_status);
+```
+
+
 continue...
-
-
