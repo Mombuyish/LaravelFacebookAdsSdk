@@ -7,12 +7,21 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class LaravelFacebookAdsSdkTest extends TestCase
 {
     protected $token;
+    protected $account_id;
+    protected $username;
+    protected $cpname;
 
     public function setUp()
     {
         parent::setUp();
 
         $this->token = env('ACCESS_TOKEN');
+
+        $this->account_id = env('ACCOUNT_ID');
+
+        $this->username = env('USERNAME');
+
+        $this->cpname = env('CPNAME');
     }
 
     /**
@@ -34,7 +43,7 @@ class LaravelFacebookAdsSdkTest extends TestCase
      */
     public function 給字串取得AdAccountList給予相對應欄位內容()
     {
-        $excepted = '';
+        $excepted = $this->username;
 
         $result = FacebookAds::getAdAccountList($this->token, 'NAME');
 
@@ -47,7 +56,7 @@ class LaravelFacebookAdsSdkTest extends TestCase
      */
     public function 給陣列取得AdAccountList給予相對應欄位內容()
     {
-        $excepted = ['balance' => 0, 'name' => ''];
+        $excepted = ['balance' => 0, 'name' => $this->username];
 
         $result = FacebookAds::getAdAccountList($this->token, ['BALANCE', 'NAME']);
 
@@ -90,7 +99,7 @@ class LaravelFacebookAdsSdkTest extends TestCase
     public function 給字串取得CampaignList給予相對應欄位內容()
     {
         // if you want to test it, you must need account_id.
-        $account_id = '';
+        $account_id = $this->account_id;
 
         $excepted = 'LINK_CLICKS';
 
@@ -106,9 +115,9 @@ class LaravelFacebookAdsSdkTest extends TestCase
     public function 給陣列取得CampaignList給予相對應欄位內容()
     {
         // if you want to test it, you must need account_id.
-        $account_id = '';
+        $account_id = $this->account_id;
 
-        $excepted = ['objective' => 'LINK_CLICKS', 'name' => ''];
+        $excepted = ['objective' => 'LINK_CLICKS', 'name' => $this->cpname];
 
         $result = FacebookAds::getCampaignList($this->token, $account_id, ['OBJECTIVE', 'NAME']);
 
@@ -116,5 +125,31 @@ class LaravelFacebookAdsSdkTest extends TestCase
             'objective'  => $result[0]->objective,
             'name' => $result[0]->name,
         ]);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 給錯誤的AdAccountStatus代碼會返回錯誤()
+    {
+        $excepted = 'This status does not exist';
+
+        $result = FacebookAds::transAdAccountStatus(10000);
+
+        $this->assertEquals($excepted, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 給7會給對應的AdAccountStatus字串()
+    {
+        $excepted = 'PENDING_RISK_REVIEW';
+
+        $result = FacebookAds::transAdAccountStatus(7);
+
+        $this->assertEquals($excepted, $result);
     }
 }

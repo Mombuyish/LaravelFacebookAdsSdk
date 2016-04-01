@@ -28,11 +28,34 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      */
     private $campaignFields;
 
+    /**
+     * see https://developers.facebook.com/docs/marketing-api/reference/ad-account/#Reading
+     */
+    const ADACCOUNT_STATUS = [
+        1   => 'ACTIVE',
+        2   => 'DISABLED',
+        3   => 'UNSETTLED',
+        7   => 'PENDING_RISK_REVIEW',
+        9   => 'IN_GRACE_PERIOD',
+        100 => 'PENDING_CLOSURE',
+        101 => 'CLOSED',
+        102 => 'PENDING_SETTLEMENT',
+        201 => 'ANY_ACTIVE',
+        202 => 'ANY_CLOSED',
+    ];
+
     public function __construct($config, AdAccountFields $accountFields, CampaignFields $campaignFields)
     {
         $this->config = $config;
         $this->accountFields = $accountFields;
         $this->campaignFields = $campaignFields;
+    }
+
+    public function transAdAccountStatus($key)
+    {
+        if ( ! array_key_exists($key, self::ADACCOUNT_STATUS)) return "This status does not exist";
+
+        return self::ADACCOUNT_STATUS[$key];
     }
 
     protected function getConstColumns($consts = [], $type)
