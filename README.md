@@ -51,6 +51,24 @@ or you can do on string for one.
   FacebookAds::getCampaignList($facebookToken, $account_id, 'OBJECTIVE');
 ```
 
+Reference `FacebookAds\Object\Fields\InsightsFields` consts.
+```
+  FacebookAds::getInsightList($userFbToken, $type, $ids, ['COST_PER_UNIQUE_CLICK', 'SPEND'], $preset = 'lifetime', $amount = 50);
+```
+or you can do on string for one.
+```
+  FacebookAds::getInsightList($userFbToken, $type, $ids, 'COST_PER_UNIQUE_CLICK');
+//$type = [
+        'adaccount',
+        'campaign',
+        'adset',
+        'ad',
+];
+
+//$preset @see https://developers.facebook.com/docs/marketing-api/reference/ad-campaign/insights/
+
+```
+
 # Exceptions
 if parameters is empty, you will got error *string*, I hope you handle this exceptions.
 ```
@@ -58,6 +76,18 @@ if parameters is empty, you will got error *string*, I hope you handle this exce
     'The params field is required.'
 ]
 ```
+
+Others:
+```
+[
+    'Type does not in fields.'
+]
+
+[
+    'Preset does not in fields.'
+]
+```
+
 
 # Transform
 Transform AdAccount  status you can call this:
