@@ -70,22 +70,12 @@ or you can do on string for one.
 ```
 
 # Exceptions
-if parameters is empty, you will got error *string*, I hope you handle this exceptions.
+I add `LaravelFacebookAdsSdkException` to handle exceptions.
+You can handle it in `App\Exceptions` handler.php
 ```
-[
-    'The params field is required.'
-]
-```
-
-Others:
-```
-[
-    'Type does not in fields.'
-]
-
-[
-    'Preset does not in fields.'
-]
+    if ( $e instanceof LaravelFacebookAdsSdkException ) {
+        return respond($e->getMessage(), Response::HTTP_FORBIDDEN);
+    }
 ```
 
 
