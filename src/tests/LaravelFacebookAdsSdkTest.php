@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException;
 
 class LaravelFacebookAdsSdkTest extends TestCase
 {
@@ -26,12 +27,50 @@ class LaravelFacebookAdsSdkTest extends TestCase
 
     /**
      * @group fbadsdk
-     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給參數取得AdAccountList得到錯誤訊息()
     {
-        FacebookAds::getAdAccountList($this->token, '');
+        $result = '';
+        try {
+            FacebookAds::getAdAccountList($this->token, '');
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 未給token參數取得AdAccountList得到錯誤訊息()
+    {
+        $result = '';
+        try {
+            FacebookAds::getAdAccountList('', 'NAME');
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 給錯誤token參數取得AdAccountList得到錯誤訊息()
+    {
+        $result = '';
+        try {
+            FacebookAds::getAdAccountList(123456, 'NAME');
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
     }
 
     /**
@@ -58,29 +97,73 @@ class LaravelFacebookAdsSdkTest extends TestCase
         $result = FacebookAds::getAdAccountList($this->token, ['BALANCE', 'NAME']);
 
         $this->assertEquals($excepted, [
-            'balance'  => $result[1]->balance,
-            'name' => $result[1]->name,
+            'balance' => $result[1]->balance,
+            'name'    => $result[1]->name,
         ]);
     }
 
     /**
      * @group fbadsdk
-     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給Account_id取得CampaignList得到錯誤訊息()
     {
-        FacebookAds::getCampaignList($this->token, '', ['OBJECTIVE', 'ACCOUNT_ID']);
+        $result = '';
+        try {
+            FacebookAds::getCampaignList($this->token, '', ['OBJECTIVE', 'ACCOUNT_ID']);
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
     }
 
     /**
      * @group fbadsdk
-     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
+     * @test
+     */
+    public function 未給fb_token取得CampaignList得到錯誤訊息()
+    {
+        $result = '';
+        try {
+            FacebookAds::getCampaignList('', 12345, ['OBJECTIVE', 'ACCOUNT_ID']);
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 給錯誤fb_token取得CampaignList得到錯誤訊息()
+    {
+        $result = '';
+        try {
+            FacebookAds::getCampaignList(33333, 12345, ['OBJECTIVE', 'ACCOUNT_ID']);
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
+    }
+
+    /**
+     * @group fbadsdk
      * @test
      */
     public function 未給Parameters取得CampaignList得到錯誤訊息()
     {
-        FacebookAds::getCampaignList($this->token, 12345, '');
+        $result = '';
+        try {
+            FacebookAds::getCampaignList($this->token, 12345, '');
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
     }
 
     /**
@@ -94,7 +177,7 @@ class LaravelFacebookAdsSdkTest extends TestCase
 
         $excepted = 'MOBILE_APP_INSTALLS';
 
-        $result = FacebookAds::getCampaignList($this->token, $account_id,'OBJECTIVE');
+        $result = FacebookAds::getCampaignList($this->token, $account_id, 'OBJECTIVE');
 
         $this->assertEquals($excepted, $result[0]->objective);
     }
@@ -113,19 +196,25 @@ class LaravelFacebookAdsSdkTest extends TestCase
         $result = FacebookAds::getCampaignList($this->token, $account_id, ['OBJECTIVE', 'NAME']);
 
         $this->assertEquals($excepted, [
-            'objective'  => $result[0]->objective,
-            'name' => $result[0]->name,
+            'objective' => $result[0]->objective,
+            'name'      => $result[0]->name,
         ]);
     }
 
     /**
      * @group fbadsdk
-     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 給錯誤的AdAccountStatus代碼會返回錯誤()
     {
-        FacebookAds::transAdAccountStatus(10000);
+        $result = '';
+        try {
+            FacebookAds::transAdAccountStatus(10000);
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
     }
 
     /**
@@ -143,62 +232,99 @@ class LaravelFacebookAdsSdkTest extends TestCase
 
     /**
      * @group fbadsdk
-     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給全部參數取得Insights得到錯誤訊息()
     {
-        FacebookAds::getInsightList($this->token, '', '', '');
+        $result = '';
+        try {
+            FacebookAds::getInsightList($this->token, '', '', '');
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
     }
 
     /**
      * @group fbadsdk
-     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給ACCOUNT_ID參數取得Insights得到錯誤訊息()
     {
-        FacebookAds::getInsightList($this->token, 'adaccount', '', 'COST_PER_UNIQUE_CLICK');
+        $result = '';
+        try {
+            FacebookAds::getInsightList($this->token, 'adaccount', '', 'COST_PER_UNIQUE_CLICK');
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
     }
 
     /**
      * @group fbadsdk
-     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給PARAMETER參數取得Insights得到錯誤訊息()
     {
-        FacebookAds::getInsightList($this->token, 'adaccount', env('ACCOUNT_ID'), '');
+        $result = '';
+        try {
+            FacebookAds::getInsightList($this->token, 'adaccount', env('ACCOUNT_ID'), '');
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
     }
 
     /**
      * @group fbadsdk
-     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給AD_TYPE參數取得Insights得到錯誤訊息()
     {
-        FacebookAds::getInsightList($this->token, '', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK');
+        $result = '';
+        try {
+            FacebookAds::getInsightList($this->token, '', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK');
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
     }
 
     /**
      * @group fbadsdk
-     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 給予的AD_TYPE不在TYPE內取得Insights得到錯誤訊息()
     {
-        FacebookAds::getInsightList($this->token, 'adaccount1', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK');
+        $result = '';
+        try {
+            FacebookAds::getInsightList($this->token, 'adaccount1', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK');
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
     }
 
     /**
      * @group fbadsdk
-     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 給予的PRESET不在TYPE內取得Insights得到錯誤訊息()
     {
-        FacebookAds::getInsightList($this->token, 'adaccount', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK', '123456');
+        $result = '';
+        try {
+            FacebookAds::getInsightList($this->token, 'adaccount', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK',
+                '123456');
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
     }
 
     /**
@@ -207,7 +333,8 @@ class LaravelFacebookAdsSdkTest extends TestCase
      */
     public function 給字串取得InsightList給予相對應欄位內容()
     {
-        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')], 'COST_PER_UNIQUE_CLICK', 'lifetime');
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')],
+            'COST_PER_UNIQUE_CLICK', 'lifetime');
 
         $this->assertArrayHasKey('cost_per_unique_click', $result[env('ADOBJECT_ID_1')]['data'][0]);
     }
@@ -218,7 +345,8 @@ class LaravelFacebookAdsSdkTest extends TestCase
      */
     public function 給陣列取得InsightList給予相對應欄位內容()
     {
-        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')], ['COST_PER_UNIQUE_CLICK', 'SPEND'], 'lifetime');
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')],
+            ['COST_PER_UNIQUE_CLICK', 'SPEND'], 'lifetime');
 
         $this->assertArrayHasKey('cost_per_unique_click', $result[env('ADOBJECT_ID_1')]['data'][0]);
         $this->assertArrayHasKey('spend', $result[env('ADOBJECT_ID_1')]['data'][0]);
@@ -230,9 +358,45 @@ class LaravelFacebookAdsSdkTest extends TestCase
      */
     public function 取得InsightList給予相對應欄位內容()
     {
-        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')], ['COST_PER_UNIQUE_CLICK', 'SPEND'], 'lifetime');
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')],
+            ['COST_PER_UNIQUE_CLICK', 'SPEND'], 'lifetime');
 
         $this->assertArrayHasKey(env('ADOBJECT_ID_1'), $result);
         $this->assertArrayHasKey(env('ADOBJECT_ID_2'), $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 給予空白的fb_token驗證失敗()
+    {
+        $result = '';
+        try {
+            FacebookAds::getInsightList('', 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')],
+                ['COST_PER_UNIQUE_CLICK', 'SPEND'], 'lifetime');
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 給予的fb_token驗證失敗()
+    {
+        $result = '';
+
+        try {
+            FacebookAds::getInsightList(1234556, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')],
+                ['COST_PER_UNIQUE_CLICK', 'SPEND'], 'lifetime');
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
     }
 }

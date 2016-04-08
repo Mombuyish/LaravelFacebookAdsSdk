@@ -3,6 +3,7 @@
 namespace Yish\LaravelFacebookAdsSdk;
 
 use FacebookAds\Api;
+use FacebookAds\Http\Exception\RequestException;
 use FacebookAds\Object\AdAccount;
 use FacebookAds\Object\AdUser;
 use FacebookAds\Object\Fields\AdAccountFields;
@@ -95,7 +96,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
     public function transAdAccountStatus($key)
     {
         if ( !array_key_exists($key, self::ADACCOUNT_STATUS) ) {
-            throw new LaravelFacebookAdsSdkException("This status does not exist");
+            throw new LaravelFacebookAdsSdkException("This status does not exist", 403);
         }
 
         return self::ADACCOUNT_STATUS[$key];
@@ -126,13 +127,18 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      */
     public function getAdAccountList($userFbToken, $parameters) : Array
     {
-        if ( empty($parameters) ) {
-            throw new LaravelFacebookAdsSdkException("The params field is required.");
+        if ( empty($parameters) || empty($userFbToken)) {
+            throw new LaravelFacebookAdsSdkException("The parameters field or user facebook token are required.", 403);
         }
 
         $user = new AdUser(static::$graphApiUrl, $this->genFacebookApi($userFbToken));
 
-        $accountsCursor = $user->getAdAccounts($this->getConstColumns((array)$parameters, 'AdAccount'));
+        try {
+            $accountsCursor = $user->getAdAccounts($this->getConstColumns((array)$parameters, 'AdAccount'));
+        }
+        catch (RequestException $e) {
+            throw new LaravelFacebookAdsSdkException($e->getMessage(), $e->getCode());
+        }
         $accountsCursor->setUseImplicitFetch(true);
 
         $adAccounts = [];
@@ -153,14 +159,19 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      */
     public function getCampaignList($userFbToken, $account_id, $parameters) : Array
     {
-        if ( empty($account_id) || empty($parameters) ) {
-            throw new LaravelFacebookAdsSdkException("The params field or account_id field are required.");
+        if ( empty($account_id) || empty($parameters) || empty($userFbToken)) {
+            throw new LaravelFacebookAdsSdkException("The parameters field ,account_id field or user facebook token are required.", 403);
         }
 
         $fbApi = $this->genFacebookApi($userFbToken);
         $acAccount = new AdAccount($this->prefix . $account_id, $fbApi);
 
-        $campaignsCursor = $acAccount->getCampaigns($this->getConstColumns((array)$parameters, 'Campaign'));
+        try {
+            $campaignsCursor = $acAccount->getCampaigns($this->getConstColumns((array)$parameters, 'Campaign'));
+        }
+        catch (RequestException $e) {
+            throw new LaravelFacebookAdsSdkException($e->getMessage(), $e->getCode());
+        }
         $campaignsCursor->setUseImplicitFetch(true);
 
         $campaigns = [];
@@ -184,16 +195,16 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      */
     public function getInsightList($userFbToken, $type, $ids, $parameters, $preset = 'lifetime', $amount = 50)
     {
-        if ( empty($ids) || empty($parameters) || empty($type) ) {
-            throw new LaravelFacebookAdsSdkException("The params field are required.");
+        if ( empty($ids) || empty($parameters) || empty($type) || empty($userFbToken)) {
+            throw new LaravelFacebookAdsSdkException("The params field are required.", 403);
         }
 
         if ( ! in_array($type, static::ADS_TYPE) ) {
-            throw new LaravelFacebookAdsSdkException("Type does not in fields.");
+            throw new LaravelFacebookAdsSdkException("Type does not in fields.", 403);
         }
 
         if ( ! in_array($preset, static::PRESET)) {
-            throw new LaravelFacebookAdsSdkException("Preset does not in fields.");
+            throw new LaravelFacebookAdsSdkException("Preset does not in fields.", 403);
         }
 
         $fbApi = $this->genFacebookApi($userFbToken);
@@ -218,6 +229,13 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
 
     protected function customCall($node, $method, $param, Api $fbApi)
     {
-        return $fbApi->call("/" . $node, $method, $param)->getContent();
+        try {
+            $token = $fbApi->call("/" . $node, $method, $param)->getContent();
+        }
+        catch (RequestException $e) {
+            throw new LaravelFacebookAdsSdkException($e->getMessage(), $e->getCode());
+        }
+
+        return $token;
     }
 }
