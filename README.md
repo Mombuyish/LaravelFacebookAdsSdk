@@ -74,7 +74,7 @@ I add `LaravelFacebookAdsSdkException` to handle exceptions.
 You can handle it in `App\Exceptions` handler.php
 ```
     if ( $e instanceof LaravelFacebookAdsSdkException ) {
-        return respond($e->getMessage(), Response::HTTP_FORBIDDEN);
+        return respond($e->getMessage(), $e->getCode());
     }
 ```
 
