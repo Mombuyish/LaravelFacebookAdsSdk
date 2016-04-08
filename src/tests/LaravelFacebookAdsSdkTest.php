@@ -26,15 +26,12 @@ class LaravelFacebookAdsSdkTest extends TestCase
 
     /**
      * @group fbadsdk
+     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給參數取得AdAccountList得到錯誤訊息()
     {
-        $excepted = ["The params field is required."];
-
-        $result = FacebookAds::getAdAccountList($this->token, '');
-
-        $this->assertEquals($excepted, $result);
+        FacebookAds::getAdAccountList($this->token, '');
     }
 
     /**
@@ -68,28 +65,22 @@ class LaravelFacebookAdsSdkTest extends TestCase
 
     /**
      * @group fbadsdk
+     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給Account_id取得CampaignList得到錯誤訊息()
     {
-        $excepted = ['The params field or account_id field are required.'];
-
-        $result = FacebookAds::getCampaignList($this->token, '', ['OBJECTIVE', 'ACCOUNT_ID']);
-
-        $this->assertEquals($excepted, $result);
+        FacebookAds::getCampaignList($this->token, '', ['OBJECTIVE', 'ACCOUNT_ID']);
     }
 
     /**
      * @group fbadsdk
+     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給Parameters取得CampaignList得到錯誤訊息()
     {
-        $excepted = ['The params field or account_id field are required.'];
-
-        $result = FacebookAds::getCampaignList($this->token, 12345, '');
-
-        $this->assertEquals($excepted, $result);
+        FacebookAds::getCampaignList($this->token, 12345, '');
     }
 
     /**
@@ -129,15 +120,12 @@ class LaravelFacebookAdsSdkTest extends TestCase
 
     /**
      * @group fbadsdk
+     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 給錯誤的AdAccountStatus代碼會返回錯誤()
     {
-        $excepted = 'This status does not exist';
-
-        $result = FacebookAds::transAdAccountStatus(10000);
-
-        $this->assertEquals($excepted, $result);
+        FacebookAds::transAdAccountStatus(10000);
     }
 
     /**
@@ -155,80 +143,62 @@ class LaravelFacebookAdsSdkTest extends TestCase
 
     /**
      * @group fbadsdk
+     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給全部參數取得Insights得到錯誤訊息()
     {
-        $excepted = ["The params field are required."];
-
-        $result = FacebookAds::getInsightList($this->token, '', '', '');
-
-        $this->assertEquals($excepted, $result);
+        FacebookAds::getInsightList($this->token, '', '', '');
     }
 
     /**
      * @group fbadsdk
+     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給ACCOUNT_ID參數取得Insights得到錯誤訊息()
     {
-        $excepted = ["The params field are required."];
-
-        $result = FacebookAds::getInsightList($this->token, 'adaccount', '', 'COST_PER_UNIQUE_CLICK');
-
-        $this->assertEquals($excepted, $result);
+        FacebookAds::getInsightList($this->token, 'adaccount', '', 'COST_PER_UNIQUE_CLICK');
     }
 
     /**
      * @group fbadsdk
+     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給PARAMETER參數取得Insights得到錯誤訊息()
     {
-        $excepted = ["The params field are required."];
-
-        $result = FacebookAds::getInsightList($this->token, 'adaccount', env('ACCOUNT_ID'), '');
-
-        $this->assertEquals($excepted, $result);
+        FacebookAds::getInsightList($this->token, 'adaccount', env('ACCOUNT_ID'), '');
     }
 
     /**
      * @group fbadsdk
+     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 未給AD_TYPE參數取得Insights得到錯誤訊息()
     {
-        $excepted = ["The params field are required."];
-
-        $result = FacebookAds::getInsightList($this->token, '', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK');
-
-        $this->assertEquals($excepted, $result);
+        FacebookAds::getInsightList($this->token, '', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK');
     }
 
     /**
      * @group fbadsdk
+     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 給予的AD_TYPE不在TYPE內取得Insights得到錯誤訊息()
     {
-        $excepted = ["Type does not in fields."];
-
-        $result = FacebookAds::getInsightList($this->token, 'adaccount1', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK');
-
-        $this->assertEquals($excepted, $result);
+        FacebookAds::getInsightList($this->token, 'adaccount1', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK');
     }
 
     /**
      * @group fbadsdk
+     * @expectedException \Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdkException
      * @test
      */
     public function 給予的PRESET不在TYPE內取得Insights得到錯誤訊息()
     {
-        $excepted = ["Preset does not in fields."];
-
-        $result = FacebookAds::getInsightList($this->token, 'adaccount', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK', '123456');
-
-        $this->assertEquals($excepted, $result);
+        FacebookAds::getInsightList($this->token, 'adaccount', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK', '123456');
     }
 
     /**

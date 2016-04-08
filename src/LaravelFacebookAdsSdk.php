@@ -2,6 +2,7 @@
 
 namespace Yish\LaravelFacebookAdsSdk;
 
+use FacebookAds\Api;
 use FacebookAds\Object\AdAccount;
 use FacebookAds\Object\AdUser;
 use FacebookAds\Object\Fields\AdAccountFields;
@@ -94,7 +95,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
     public function transAdAccountStatus($key)
     {
         if ( !array_key_exists($key, self::ADACCOUNT_STATUS) ) {
-            return "This status does not exist";
+            throw new LaravelFacebookAdsSdkException("This status does not exist");
         }
 
         return self::ADACCOUNT_STATUS[$key];
@@ -126,7 +127,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
     public function getAdAccountList($userFbToken, $parameters) : Array
     {
         if ( empty($parameters) ) {
-            return array("The params field is required.");
+            throw new LaravelFacebookAdsSdkException("The params field is required.");
         }
 
         $user = new AdUser(static::$graphApiUrl, $this->genFacebookApi($userFbToken));
@@ -153,7 +154,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
     public function getCampaignList($userFbToken, $account_id, $parameters) : Array
     {
         if ( empty($account_id) || empty($parameters) ) {
-            return array("The params field or account_id field are required.");
+            throw new LaravelFacebookAdsSdkException("The params field or account_id field are required.");
         }
 
         $fbApi = $this->genFacebookApi($userFbToken);
@@ -184,21 +185,21 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
     public function getInsightList($userFbToken, $type, $ids, $parameters, $preset = 'lifetime', $amount = 50)
     {
         if ( empty($ids) || empty($parameters) || empty($type) ) {
-            return array("The params field are required.");
+            throw new LaravelFacebookAdsSdkException("The params field are required.");
         }
 
         if ( ! in_array($type, static::ADS_TYPE) ) {
-            return array("Type does not in fields.");
+            throw new LaravelFacebookAdsSdkException("Type does not in fields.");
         }
 
         if ( ! in_array($preset, static::PRESET)) {
-            return array("Preset does not in fields.");
+            throw new LaravelFacebookAdsSdkException("Preset does not in fields.");
         }
 
         $fbApi = $this->genFacebookApi($userFbToken);
 
         $fields = $this->getConstColumns((array)$parameters, 'Insights', false);
-        
+
         $insightData = [];
         foreach (array_chunk((array)$ids, $amount) as $chunkIds) {
 
@@ -215,7 +216,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         return $insightData;
     }
 
-    protected function customCall($node, $method, $param, $fbApi)
+    protected function customCall($node, $method, $param, Api $fbApi)
     {
         return $fbApi->call("/" . $node, $method, $param)->getContent();
     }
