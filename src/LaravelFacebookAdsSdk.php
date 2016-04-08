@@ -6,6 +6,7 @@ use FacebookAds\Object\AdAccount;
 use FacebookAds\Object\AdUser;
 use FacebookAds\Object\Fields\AdAccountFields;
 use FacebookAds\Object\Fields\CampaignFields;
+use FacebookAds\Object\Fields\InsightsFields;
 
 class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
 {
@@ -27,6 +28,22 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      * @var CampaignFields
      */
     private $campaignFields;
+    /**
+     * @var InsightsFields
+     */
+    private $insightsFields;
+
+    /**
+     * @var array
+     * see https://developers.facebook.com/docs/marketing-api/insights/v2.5
+     * Parameters and Fields
+     */
+    const ADS_TYPE = [
+        'adaccount',
+        'campaign',
+        'adset',
+        'ad',
+    ];
 
     /**
      * see https://developers.facebook.com/docs/marketing-api/reference/ad-account/#Reading
@@ -44,26 +61,58 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         202 => 'ANY_CLOSED',
     ];
 
-    public function __construct($config, AdAccountFields $accountFields, CampaignFields $campaignFields)
+    /**
+     * see https://developers.facebook.com/docs/marketing-api/reference/ad-campaign/insights/
+     * date_preset
+     */
+    const PRESET = [
+        'today',
+        'yesterday',
+        'last_3_days',
+        'this_week',
+        'last_week',
+        'last_7_days',
+        'last_14_days',
+        'last_28_days',
+        'last_30_days',
+        'last_90_days',
+        'this_month',
+        'last_month',
+        'this_quarter',
+        'last_3_months',
+        'lifetime',
+    ];
+
+    public function __construct($config, AdAccountFields $accountFields, CampaignFields $campaignFields, InsightsFields $insightsFields)
     {
         $this->config = $config;
         $this->accountFields = $accountFields;
         $this->campaignFields = $campaignFields;
+        $this->insightsFields = $insightsFields;
     }
 
     public function transAdAccountStatus($key)
     {
-        if ( ! array_key_exists($key, self::ADACCOUNT_STATUS)) return "This status does not exist";
+        if ( !array_key_exists($key, self::ADACCOUNT_STATUS) ) {
+            return "This status does not exist";
+        }
 
         return self::ADACCOUNT_STATUS[$key];
     }
 
-    protected function getConstColumns($consts = [], $type)
+    protected function getConstColumns($consts = [], $type, $needle = true)
     {
         $result = [];
 
         foreach ($consts as $const) {
-            $result[$const] = constant('\FacebookAds\Object\Fields\\' . $type . 'Fields::' . $const);
+
+            $data = constant('\FacebookAds\Object\Fields\\' . $type . 'Fields::' . $const);
+
+            if ( $needle ) {
+                $result[$const] = $data;
+            } else {
+                $result[] = $data;
+            }
         }
 
         return $result;
@@ -127,5 +176,56 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         }
 
         return $campaigns;
+    }
+
+    /**
+     * @param $userFbToken
+     * @param $type
+     * @param $ids
+     * @param $parameters
+     * @param string $preset
+     * @param int $amount
+     * @return array
+     */
+    public function getInsightList($userFbToken, $type, $ids, $parameters, $preset = 'lifetime', $amount = 50)
+    {
+        if ( empty($ids) || empty($parameters) || empty($type) ) {
+            return array("The params field are required.");
+        }
+
+        if ( !in_array($type, static::ADS_TYPE) ) {
+            return array("Type does not in fields.");
+        }
+
+        if ( ! in_array($preset, static::PRESET)) {
+            return array("Preset does not in fields.");
+        }
+
+        $fbApi = $this->genFacebookApi($userFbToken);
+
+        $fields = is_string($parameters) ? $this->getConstColumns(array($parameters), 'Insights', false) :
+            $this->getConstColumns($parameters, 'Insights', false);
+
+        $ids = is_array($ids) ? $ids : array($ids);
+
+        $insightData = [];
+        foreach (array_chunk($ids, $amount) as $chunkIds) {
+
+            foreach ($this->customCall("insights", "GET", [
+                "ids"    => $chunkIds,
+                "preset" => $preset,
+                "fields" => $fields,
+            ],
+                $fbApi) as $fbId => $insight) {
+                $insightData[$fbId] = $insight;
+            }
+        }
+
+        return $insightData;
+    }
+
+    protected function customCall($node, $method, $param, $fbApi)
+    {
+        return $fbApi->call("/" . $node, $method, $param)->getContent();
     }
 }

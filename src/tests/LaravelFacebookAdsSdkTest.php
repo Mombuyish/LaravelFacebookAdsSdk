@@ -15,7 +15,7 @@ class LaravelFacebookAdsSdkTest extends TestCase
     {
         parent::setUp();
 
-        $this->token = env('ACCESS_TOKEN');
+        $this->token = env('YISH_TOKEN');
 
         $this->account_id = env('ACCOUNT_ID');
 
@@ -101,7 +101,7 @@ class LaravelFacebookAdsSdkTest extends TestCase
         // if you want to test it, you must need account_id.
         $account_id = $this->account_id;
 
-        $excepted = 'LINK_CLICKS';
+        $excepted = 'MOBILE_APP_INSTALLS';
 
         $result = FacebookAds::getCampaignList($this->token, $account_id,'OBJECTIVE');
 
@@ -117,7 +117,7 @@ class LaravelFacebookAdsSdkTest extends TestCase
         // if you want to test it, you must need account_id.
         $account_id = $this->account_id;
 
-        $excepted = ['objective' => 'LINK_CLICKS', 'name' => $this->cpname];
+        $excepted = ['objective' => 'MOBILE_APP_INSTALLS', 'name' => $this->cpname];
 
         $result = FacebookAds::getCampaignList($this->token, $account_id, ['OBJECTIVE', 'NAME']);
 
@@ -151,5 +151,118 @@ class LaravelFacebookAdsSdkTest extends TestCase
         $result = FacebookAds::transAdAccountStatus(7);
 
         $this->assertEquals($excepted, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 未給全部參數取得Insights得到錯誤訊息()
+    {
+        $excepted = ["The params field are required."];
+
+        $result = FacebookAds::getInsightList($this->token, '', '', '');
+
+        $this->assertEquals($excepted, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 未給ACCOUNT_ID參數取得Insights得到錯誤訊息()
+    {
+        $excepted = ["The params field are required."];
+
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', '', 'COST_PER_UNIQUE_CLICK');
+
+        $this->assertEquals($excepted, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 未給PARAMETER參數取得Insights得到錯誤訊息()
+    {
+        $excepted = ["The params field are required."];
+
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', env('ACCOUNT_ID'), '');
+
+        $this->assertEquals($excepted, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 未給AD_TYPE參數取得Insights得到錯誤訊息()
+    {
+        $excepted = ["The params field are required."];
+
+        $result = FacebookAds::getInsightList($this->token, '', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK');
+
+        $this->assertEquals($excepted, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 給予的AD_TYPE不在TYPE內取得Insights得到錯誤訊息()
+    {
+        $excepted = ["Type does not in fields."];
+
+        $result = FacebookAds::getInsightList($this->token, 'adaccount1', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK');
+
+        $this->assertEquals($excepted, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 給予的PRESET不在TYPE內取得Insights得到錯誤訊息()
+    {
+        $excepted = ["Preset does not in fields."];
+
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', env('ACCOUNT_ID'), 'COST_PER_UNIQUE_CLICK', '123456');
+
+        $this->assertEquals($excepted, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 給字串取得InsightList給予相對應欄位內容()
+    {
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')], 'COST_PER_UNIQUE_CLICK', 'lifetime');
+
+        $this->assertArrayHasKey('cost_per_unique_click', $result[env('ADOBJECT_ID_1')]['data'][0]);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 給陣列取得InsightList給予相對應欄位內容()
+    {
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')], ['COST_PER_UNIQUE_CLICK', 'SPEND'], 'lifetime');
+
+        $this->assertArrayHasKey('cost_per_unique_click', $result[env('ADOBJECT_ID_1')]['data'][0]);
+        $this->assertArrayHasKey('spend', $result[env('ADOBJECT_ID_1')]['data'][0]);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 取得InsightList給予相對應欄位內容()
+    {
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')], ['COST_PER_UNIQUE_CLICK', 'SPEND'], 'lifetime');
+
+        $this->assertArrayHasKey(env('ADOBJECT_ID_1'), $result);
+        $this->assertArrayHasKey(env('ADOBJECT_ID_2'), $result);
     }
 }

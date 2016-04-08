@@ -4,6 +4,7 @@ namespace Yish\LaravelFacebookAdsSdk;
 
 use FacebookAds\Object\Fields\AdAccountFields;
 use FacebookAds\Object\Fields\CampaignFields;
+use FacebookAds\Object\Fields\InsightsFields;
 use Illuminate\Support\ServiceProvider;
 
 class FacebookAdsServiceProvider extends ServiceProvider
@@ -37,7 +38,7 @@ class FacebookAdsServiceProvider extends ServiceProvider
         $this->app->bind('Yish\LaravelFacebookAdsSdk\LaravelFacebookAdsSdk', function ($app) {
             $config = $app['config']->get('facebookAdsSdk.facebook_config');
 
-            return new LaravelFacebookAdsSdk($config, new AdAccountFields(), new CampaignFields());
+            return new LaravelFacebookAdsSdk($config, new AdAccountFields(), new CampaignFields(), new InsightsFields());
         });
     }
 }
