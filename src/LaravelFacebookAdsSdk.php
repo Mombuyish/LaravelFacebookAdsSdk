@@ -131,10 +131,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
 
         $user = new AdUser(static::$graphApiUrl, $this->genFacebookApi($userFbToken));
 
-        $accountsCursor = is_string($parameters) ? $user->getAdAccounts($this->getConstColumns(array($parameters),
-            'AdAccount')) :
-            $user->getAdAccounts($this->getConstColumns($parameters, 'AdAccount'));
-
+        $accountsCursor = $user->getAdAccounts($this->getConstColumns((array)$parameters, 'AdAccount'));
         $accountsCursor->setUseImplicitFetch(true);
 
         $adAccounts = [];
@@ -162,10 +159,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         $fbApi = $this->genFacebookApi($userFbToken);
         $acAccount = new AdAccount($this->prefix . $account_id, $fbApi);
 
-        $campaignsCursor = is_string($parameters) ? $acAccount->getCampaigns($this->getConstColumns(array($parameters),
-            'Campaign')) :
-            $acAccount->getCampaigns($this->getConstColumns($parameters, 'Campaign'));
-
+        $campaignsCursor = $acAccount->getCampaigns($this->getConstColumns((array)$parameters, 'Campaign'));
         $campaignsCursor->setUseImplicitFetch(true);
 
         $campaigns = [];
@@ -193,7 +187,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
             return array("The params field are required.");
         }
 
-        if ( !in_array($type, static::ADS_TYPE) ) {
+        if ( ! in_array($type, static::ADS_TYPE) ) {
             return array("Type does not in fields.");
         }
 
@@ -203,13 +197,10 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
 
         $fbApi = $this->genFacebookApi($userFbToken);
 
-        $fields = is_string($parameters) ? $this->getConstColumns(array($parameters), 'Insights', false) :
-            $this->getConstColumns($parameters, 'Insights', false);
-
-        $ids = is_array($ids) ? $ids : array($ids);
-
+        $fields = $this->getConstColumns((array)$parameters, 'Insights', false);
+        
         $insightData = [];
-        foreach (array_chunk($ids, $amount) as $chunkIds) {
+        foreach (array_chunk((array)$ids, $amount) as $chunkIds) {
 
             foreach ($this->customCall("insights", "GET", [
                 "ids"    => $chunkIds,
