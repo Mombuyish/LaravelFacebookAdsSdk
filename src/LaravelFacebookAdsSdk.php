@@ -35,55 +35,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      */
     private $insightsFields;
 
-    /**
-     * @var array
-     * see https://developers.facebook.com/docs/marketing-api/insights/v2.5
-     * Parameters and Fields
-     */
-    const ADS_TYPE = [
-        'adaccount',
-        'campaign',
-        'adset',
-        'ad',
-    ];
 
-    /**
-     * see https://developers.facebook.com/docs/marketing-api/reference/ad-account/#Reading
-     */
-    const ADACCOUNT_STATUS = [
-        1   => 'ACTIVE',
-        2   => 'DISABLED',
-        3   => 'UNSETTLED',
-        7   => 'PENDING_RISK_REVIEW',
-        9   => 'IN_GRACE_PERIOD',
-        100 => 'PENDING_CLOSURE',
-        101 => 'CLOSED',
-        102 => 'PENDING_SETTLEMENT',
-        201 => 'ANY_ACTIVE',
-        202 => 'ANY_CLOSED',
-    ];
-
-    /**
-     * see https://developers.facebook.com/docs/marketing-api/reference/ad-campaign/insights/
-     * date_preset
-     */
-    const PRESET = [
-        'today',
-        'yesterday',
-        'last_3_days',
-        'this_week',
-        'last_week',
-        'last_7_days',
-        'last_14_days',
-        'last_28_days',
-        'last_30_days',
-        'last_90_days',
-        'this_month',
-        'last_month',
-        'this_quarter',
-        'last_3_months',
-        'lifetime',
-    ];
 
     public function __construct($config, AdAccountFields $accountFields, CampaignFields $campaignFields, InsightsFields $insightsFields)
     {
@@ -93,31 +45,26 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         $this->insightsFields = $insightsFields;
     }
 
+    /**
+     * Transfer Ad account status $key => string.
+     * @param $key
+     * @return mixed
+     * @throws LaravelFacebookAdsSdkException
+     */
     public function transAdAccountStatus($key)
     {
-        if ( !array_key_exists($key, self::ADACCOUNT_STATUS) ) {
-            throw new LaravelFacebookAdsSdkException("This status does not exist", 403);
-        }
-
-        return self::ADACCOUNT_STATUS[$key];
+        return $this->getAccountStatus($key);
     }
 
-    protected function getConstColumns($consts = [], $type, $needle = true)
+    /**
+     * Transfer disable reason $key => string.
+     * @param $key
+     * @return mixed
+     * @throws LaravelFacebookAdsSdkException
+     */
+    public function transDisableReason($key)
     {
-        $result = [];
-
-        foreach ($consts as $const) {
-
-            $data = constant('\FacebookAds\Object\Fields\\' . $type . 'Fields::' . $const);
-
-            if ( $needle ) {
-                $result[$const] = $data;
-            } else {
-                $result[] = $data;
-            }
-        }
-
-        return $result;
+        return $this->getDisableReason($key);
     }
 
     /**
@@ -127,19 +74,9 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      */
     public function getAdAccountList($userFbToken, $parameters) : Array
     {
-        if ( empty($parameters) || empty($userFbToken)) {
-            throw new LaravelFacebookAdsSdkException("The parameters field or user facebook token are required.", 403);
-        }
+        $this->validate($userFbToken, $parameters);
 
-        $user = new AdUser(static::$graphApiUrl, $this->genFacebookApi($userFbToken));
-
-        try {
-            $accountsCursor = $user->getAdAccounts($this->getConstColumns((array)$parameters, 'AdAccount'));
-        }
-        catch (RequestException $e) {
-            throw new LaravelFacebookAdsSdkException($e->getMessage(), $e->getCode());
-        }
-        $accountsCursor->setUseImplicitFetch(true);
+        $accountsCursor = $this->getAdAccountsBySelf($userFbToken, $parameters);
 
         $adAccounts = [];
         while ($accountsCursor->current()) {
@@ -159,20 +96,11 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      */
     public function getCampaignList($userFbToken, $account_id, $parameters) : Array
     {
-        if ( empty($account_id) || empty($parameters) || empty($userFbToken)) {
-            throw new LaravelFacebookAdsSdkException("The parameters field ,account_id field or user facebook token are required.", 403);
-        }
+        $this->validate($userFbToken, $account_id, $parameters);
 
-        $fbApi = $this->genFacebookApi($userFbToken);
-        $acAccount = new AdAccount($this->prefix . $account_id, $fbApi);
+        $fbApi = $this->init($userFbToken);
 
-        try {
-            $campaignsCursor = $acAccount->getCampaigns($this->getConstColumns((array)$parameters, 'Campaign'));
-        }
-        catch (RequestException $e) {
-            throw new LaravelFacebookAdsSdkException($e->getMessage(), $e->getCode());
-        }
-        $campaignsCursor->setUseImplicitFetch(true);
+        $campaignsCursor = $this->getCampaignsByAdAccount($account_id, $parameters, $fbApi);
 
         $campaigns = [];
         while ($campaignsCursor->current()) {
@@ -193,28 +121,21 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      * @param int $amount
      * @return array
      */
-    public function getInsightList($userFbToken, $type, $ids, $parameters, $preset = 'lifetime', $amount = 50)
+    public function getInsightList($userFbToken, $type, $ids, $parameters = ['IMPRESSIONS', 'SPEND'], $preset = 'last_30_days', $amount = 50) : Array
     {
-        if ( empty($ids) || empty($parameters) || empty($type) || empty($userFbToken)) {
-            throw new LaravelFacebookAdsSdkException("The params field are required.", 403);
+        $this->validate($userFbToken, $ids, $parameters);
+
+        if ( ! $this->inDatePreset($preset) || ! $this->inAdsType($type)) {
+            throw new LaravelFacebookAdsSdkException(static::$exceptionMessage, 403);
         }
 
-        if ( ! in_array($type, static::ADS_TYPE) ) {
-            throw new LaravelFacebookAdsSdkException("Type does not in fields.", 403);
-        }
-
-        if ( ! in_array($preset, static::PRESET)) {
-            throw new LaravelFacebookAdsSdkException("Preset does not in fields.", 403);
-        }
-
-        $fbApi = $this->genFacebookApi($userFbToken);
-
+        $fbApi = $this->init($userFbToken);
         $fields = $this->getConstColumns((array)$parameters, 'Insights', false);
 
         $insightData = [];
         foreach (array_chunk((array)$ids, $amount) as $chunkIds) {
 
-            foreach ($this->customCall("insights", "GET", [
+            foreach ($this->call("insights", "GET", [
                 "ids"    => $chunkIds,
                 "preset" => $preset,
                 "fields" => $fields,
@@ -227,15 +148,45 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         return $insightData;
     }
 
-    protected function customCall($node, $method, $param, Api $fbApi)
+    /**
+     * @param $account_id
+     * @param $parameters
+     * @param $fbApi
+     * @return \FacebookAds\Cursor
+     * @throws LaravelFacebookAdsSdkException
+     */
+    private function getCampaignsByAdAccount($account_id, $parameters, Api $fbApi)
     {
+        $acAccount = new AdAccount($this->prefix . $account_id, $fbApi);
+
         try {
-            $token = $fbApi->call("/" . $node, $method, $param)->getContent();
-        }
-        catch (RequestException $e) {
+            $campaignsCursor = $acAccount->getCampaigns($this->getConstColumns((array) $parameters, 'Campaign'));
+        } catch (RequestException $e) {
             throw new LaravelFacebookAdsSdkException($e->getMessage(), $e->getCode());
         }
 
-        return $token;
+        $campaignsCursor->setUseImplicitFetch(true);
+
+        return $campaignsCursor;
+    }
+
+    /**
+     * @param $userFbToken
+     * @param $parameters
+     * @return \FacebookAds\Cursor
+     * @throws LaravelFacebookAdsSdkException
+     */
+    private function getAdAccountsBySelf($userFbToken, $parameters)
+    {
+        $user = new AdUser(static::$graphApiUrl, $this->init($userFbToken));
+
+        try {
+            $accountsCursor = $user->getAdAccounts($this->getConstColumns((array) $parameters, 'AdAccount'));
+        } catch (RequestException $e) {
+            throw new LaravelFacebookAdsSdkException($e->getMessage(), $e->getCode());
+        }
+        $accountsCursor->setUseImplicitFetch(true);
+
+        return $accountsCursor;
     }
 }

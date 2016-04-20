@@ -10,7 +10,7 @@
     ],
     "require": {
         "php": ">=7.0.0",
-        "facebook/php-ads-sdk": "^2.5"
+        "facebook/php-ads-sdk": "^2.6"
     },
     "autoload": {
         "psr-4": {

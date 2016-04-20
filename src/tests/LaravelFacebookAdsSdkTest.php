@@ -221,6 +221,35 @@ class LaravelFacebookAdsSdkTest extends TestCase
      * @group fbadsdk
      * @test
      */
+    public function 給錯誤的DisableReason代碼會返回錯誤()
+    {
+        $result = '';
+        try {
+            FacebookAds::transDisableReason(10000);
+        } catch (LaravelFacebookAdsSdkException $e) {
+            $result = $e;
+        }
+
+        $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 給4會給對應的DisableReason字串()
+    {
+        $excepted = 'GRAY_ACCOUNT_SHUT_DOWN';
+
+        $result = FacebookAds::transDisableReason(4);
+
+        $this->assertEquals($excepted, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
     public function 給7會給對應的AdAccountStatus字串()
     {
         $excepted = 'PENDING_RISK_REVIEW';
@@ -343,6 +372,18 @@ class LaravelFacebookAdsSdkTest extends TestCase
      * @group fbadsdk
      * @test
      */
+    public function 給字串和last_7_days區間取得InsightList給予相對應欄位內容()
+    {
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')],
+            'COST_PER_UNIQUE_CLICK', 'last_7_days');
+
+        $this->assertArrayHasKey('cost_per_unique_click', $result[env('ADOBJECT_ID_1')]['data'][0]);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
     public function 給陣列取得InsightList給予相對應欄位內容()
     {
         $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')],
@@ -398,5 +439,17 @@ class LaravelFacebookAdsSdkTest extends TestCase
         }
 
         $this->assertInstanceOf(LaravelFacebookAdsSdkException::class, $result);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 取得InsightList不給予欄位取得default內容()
+    {
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')]);
+
+        $this->assertArrayHasKey(env('ADOBJECT_ID_1'), $result);
+        $this->assertArrayHasKey(env('ADOBJECT_ID_2'), $result);
     }
 }
