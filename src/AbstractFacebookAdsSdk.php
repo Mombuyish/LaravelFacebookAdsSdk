@@ -2,8 +2,11 @@
 
 namespace Yish\LaravelFacebookAdsSdk;
 
+use Carbon\Carbon;
 use FacebookAds\Api;
 use FacebookAds\Http\Exception\RequestException;
+use FacebookAds\Logger\CurlLogger;
+use Log;
 
 abstract class AbstractFacebookAdsSdk extends FacebookConstField
 {
@@ -47,6 +50,24 @@ abstract class AbstractFacebookAdsSdk extends FacebookConstField
         return empty($value);
     }
 
+    /**
+     * @param $fbApi
+     */
+    public function logger($fbApi)
+    {
+        $fbApi->setLogger(new CurlLogger(fopen(storage_path('logs/facebook/curl.log'), "a+")));
+
+        Log::useDailyFiles(storage_path('logs/facebook/facebook.log'));
+
+        Log::info("Message", ['session' =>
+            [
+                'appId' => $fbApi->getSession()->getAppId(),
+                'appSecret' => $fbApi->getSession()->getAppSecret(),
+                'accessToken' => $fbApi->getSession()->getAccessToken(),
+                'appSecretProof' => $fbApi->getSession()->getAppSecretProof(),
+            ]]);
+    }
+
     public static function addSlash($name)
     {
         return "/" . $name;
@@ -83,7 +104,12 @@ abstract class AbstractFacebookAdsSdk extends FacebookConstField
     protected function init($userFbToken)
     {
         Api::init($this->config['app_id'], $this->config['app_secret'], $userFbToken);
-        return Api::instance();
+
+        $fbApi = Api::instance();
+
+        $this->logger($fbApi);
+
+        return $fbApi;
     }
 
 
