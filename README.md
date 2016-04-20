@@ -1,11 +1,7 @@
 # LaravelFacebookAdsSdk
 This project is developing now.
 
-```
-    "require": {
-        "facebook/php-ads-sdk": "^2.5"
-    }
-```
+**update! facebook ads api 2.6 !**
 
 # Installation
 ```
@@ -52,6 +48,12 @@ or you can do on string for one.
 ```
 
 Reference `FacebookAds\Object\Fields\InsightsFields` consts.
+By default.
+```
+//DEFAULT:$parameters = ['IMPRESSIONS', 'SPEND'], $preset = 'last_30_days', $amount = 50
+  FacebookAds::getInsightList($userFbToken, $type, $ids);
+```
+Or you can do this:
 ```
   FacebookAds::getInsightList($userFbToken, $type, $ids, ['COST_PER_UNIQUE_CLICK', 'SPEND'], $preset = 'lifetime', $amount = 50);
 ```
@@ -80,7 +82,7 @@ You can handle it in `App\Exceptions` handler.php
 
 
 # Transform
-Transform AdAccount  status you can call this:
+Transform AdAccount status you can call this:
 ```
     FacebookAds::transAdAccountStatus($adaccount_status);
 ```
@@ -92,4 +94,14 @@ Transform AdAccount  status you can call this:
 //3 = UNSETTLED
 //....
 
-continue...
+Transform DisableReason  status you can call this:
+```
+    FacebookAds::transDisableReason($disable_reason);
+```
+//reference: https://developers.facebook.com/docs/marketing-api/reference/ad-account/#Reading
+//0 = NONE
+//1 = ADS_INTEGRITY_POLICY
+//2 = ADS_IP_REVIEW
+//3 = RISK_PAYMENT
+//4 = GRAY_ACCOUNT_SHUT_DOWN
+//5 = ADS_AFC_REVIEW
