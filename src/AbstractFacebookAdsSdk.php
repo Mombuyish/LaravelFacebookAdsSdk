@@ -62,7 +62,7 @@ abstract class AbstractFacebookAdsSdk extends FacebookConstField
         Log::info("Message", ['session' =>
             [
                 'appId' => $fbApi->getSession()->getAppId(),
-                'appSecret' => $fbApi->getSession()->getAppSecret(),
+                //'appSecret' => $fbApi->getSession()->getAppSecret(),
                 'accessToken' => $fbApi->getSession()->getAccessToken(),
                 'appSecretProof' => $fbApi->getSession()->getAppSecretProof(),
             ]]);
