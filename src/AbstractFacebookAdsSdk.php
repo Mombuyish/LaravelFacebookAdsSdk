@@ -2,7 +2,6 @@
 
 namespace Yish\LaravelFacebookAdsSdk;
 
-use Carbon\Carbon;
 use FacebookAds\Api;
 use FacebookAds\Http\Exception\RequestException;
 use FacebookAds\Logger\CurlLogger;
@@ -62,7 +61,7 @@ abstract class AbstractFacebookAdsSdk extends FacebookConstField
         Log::info("Message", ['session' =>
             [
                 'appId' => $fbApi->getSession()->getAppId(),
-                //'appSecret' => $fbApi->getSession()->getAppSecret(),
+                'appSecret' => $fbApi->getSession()->getAppSecret(),
                 'accessToken' => $fbApi->getSession()->getAccessToken(),
                 'appSecretProof' => $fbApi->getSession()->getAppSecretProof(),
             ]]);
