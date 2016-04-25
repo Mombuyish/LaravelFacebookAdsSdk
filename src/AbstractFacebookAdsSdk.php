@@ -54,17 +54,25 @@ abstract class AbstractFacebookAdsSdk extends FacebookConstField
      */
     public function logger($fbApi)
     {
+        if ( !file_exists(storage_path('logs/facebook')) ) {
+            mkdir(storage_path('logs/facebook'), 0755, true);
+        }
+
         $fbApi->setLogger(new CurlLogger(fopen(storage_path('logs/facebook/curl.log'), "a+")));
+
+        fopen(storage_path('logs/facebook/curl.log'), "a+");
 
         Log::useDailyFiles(storage_path('logs/facebook/facebook.log'));
 
-        Log::info("Message", ['session' =>
-            [
-                'appId' => $fbApi->getSession()->getAppId(),
-                'appSecret' => $fbApi->getSession()->getAppSecret(),
-                'accessToken' => $fbApi->getSession()->getAccessToken(),
-                'appSecretProof' => $fbApi->getSession()->getAppSecretProof(),
-            ]]);
+        Log::info("Message", [
+            'session' =>
+                [
+                    'appId'          => $fbApi->getSession()->getAppId(),
+                    'appSecret'      => $fbApi->getSession()->getAppSecret(),
+                    'accessToken'    => $fbApi->getSession()->getAccessToken(),
+                    'appSecretProof' => $fbApi->getSession()->getAppSecretProof(),
+                ],
+        ]);
     }
 
     public static function addSlash($name)
@@ -75,7 +83,7 @@ abstract class AbstractFacebookAdsSdk extends FacebookConstField
     public function validate()
     {
         foreach ($parameters = func_get_args() as $arg) {
-            if ($this->isEmpty($arg)) {
+            if ( $this->isEmpty($arg) ) {
                 throw new LaravelFacebookAdsSdkException(static::$exceptionMessage, 403);
             }
         }
@@ -124,8 +132,7 @@ abstract class AbstractFacebookAdsSdk extends FacebookConstField
     {
         try {
             $token = $fbApi->call(self::addSlash($node), $method, $param)->getContent();
-        }
-        catch (RequestException $e) {
+        } catch (RequestException $e) {
             throw new LaravelFacebookAdsSdkException($e->getMessage(), $e->getCode());
         }
 
@@ -164,7 +171,7 @@ abstract class AbstractFacebookAdsSdk extends FacebookConstField
      */
     public function getAccountStatus($key)
     {
-        if ( ! array_key_exists($key, self::account_status) ) {
+        if ( !array_key_exists($key, self::account_status) ) {
             throw new LaravelFacebookAdsSdkException("This status does not exist", 403);
         }
 
@@ -178,7 +185,7 @@ abstract class AbstractFacebookAdsSdk extends FacebookConstField
      */
     public function getDisableReason($key)
     {
-        if ( ! array_key_exists($key, self::disable_reason) ) {
+        if ( !array_key_exists($key, self::disable_reason) ) {
             throw new LaravelFacebookAdsSdkException("This status does not exist", 403);
         }
 
