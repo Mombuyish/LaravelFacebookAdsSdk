@@ -137,7 +137,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
 
             foreach ($this->call("insights", "GET", [
                 "ids"    => $chunkIds,
-                "preset" => $preset,
+                "date_preset" => $preset,
                 "fields" => $fields,
             ],
                 $fbApi) as $fbId => $insight) {

@@ -9,6 +9,8 @@ use Log;
 
 abstract class AbstractFacebookAdsSdk extends FacebookConstField
 {
+    const VERSION = "2.6.4";
+
     protected $config;
 
     protected static $exceptionMessage = "Parameter field is required.";

@@ -92,7 +92,7 @@ class LaravelFacebookAdsSdkTest extends TestCase
      */
     public function 給陣列取得AdAccountList給予相對應欄位內容()
     {
-        $excepted = ['balance' => 0, 'name' => $this->username];
+        $excepted = ['balance' => 29448, 'name' => $this->username];
 
         $result = FacebookAds::getAdAccountList($this->token, ['BALANCE', 'NAME']);
 
@@ -451,5 +451,32 @@ class LaravelFacebookAdsSdkTest extends TestCase
 
         $this->assertArrayHasKey(env('ADOBJECT_ID_1'), $result);
         $this->assertArrayHasKey(env('ADOBJECT_ID_2'), $result);
+    }
+
+    /**
+     * @group fbadsdk1
+     * @test
+     */
+    public function 給date_preset的last_7_days取得InsightList內容()
+    {
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')], ['DATE_START', 'DATE_STOP'], 'last_7_days');
+
+        $this->assertArrayHasKey('date_start', $result[env('ADOBJECT_ID_1')]['data'][0]);
+        $this->assertArrayHasKey('date_stop', $result[env('ADOBJECT_ID_1')]['data'][0]);
+        $this->assertEquals((new DateTime())->format('Y-m-d'), $result[env('ADOBJECT_ID_1')]['data'][0]['date_stop']);
+        $this->assertEquals((new DateTime())->modify('-6 day')->format('Y-m-d'), $result[env('ADOBJECT_ID_1')]['data'][0]['date_start']);
+    }
+
+    /**
+     * @group fbadsdk1
+     * @test
+     */
+    public function 給date_preset的this_month取得InsightList內容()
+    {
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')], ['DATE_START', 'DATE_STOP'], 'this_month');
+
+        $this->assertArrayHasKey('date_start', $result[env('ADOBJECT_ID_1')]['data'][0]);
+        $this->assertArrayHasKey('date_stop', $result[env('ADOBJECT_ID_1')]['data'][0]);
+        $this->assertEquals((new DateTime())->modify('first day of this month')->format('Y-m-d'), $result[env('ADOBJECT_ID_1')]['data'][0]['date_start']);
     }
 }
