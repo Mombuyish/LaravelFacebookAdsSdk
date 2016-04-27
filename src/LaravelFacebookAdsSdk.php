@@ -2,6 +2,7 @@
 
 namespace Yish\LaravelFacebookAdsSdk;
 
+use DateTime;
 use FacebookAds\Api;
 use FacebookAds\Http\Exception\RequestException;
 use FacebookAds\Object\AdAccount;
@@ -217,9 +218,9 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         ];
 
         //if time range does not empty, set time range and return.
-        if ( !empty($time_range) ) {
+        if ( ! empty($time_range) && is_array($time_range)) {
             $data = array_add($data, 'time_range.since', $time_range[0]);
-            $data = array_add($data, 'time_range.until', $time_range[1]);
+            $data = array_add($data, 'time_range.until', (count($time_range) != 2) ? (new DateTime())->format('Y-m-d') : $time_range[1]);
             return $data;
         }
 

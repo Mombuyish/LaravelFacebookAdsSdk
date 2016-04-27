@@ -537,6 +537,34 @@ class LaravelFacebookAdsSdkTest extends TestCase
      * @group fbadsdk
      * @test
      */
+    public function 只給一個的時間格式time_range返回今天()
+    {
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')], ['DATE_START', 'DATE_STOP'], null, [
+                (new DateTime())->modify('-6 day')->format('Y-m-d')]);
+
+        $this->assertArrayHasKey('date_start', $result[env('ADOBJECT_ID_1')]['data'][0]);
+        $this->assertArrayHasKey('date_stop', $result[env('ADOBJECT_ID_1')]['data'][0]);
+        $this->assertEquals((new DateTime())->format('Y-m-d'), $result[env('ADOBJECT_ID_1')]['data'][0]['date_stop']);
+        $this->assertEquals((new DateTime())->modify('-6 day')->format('Y-m-d'), $result[env('ADOBJECT_ID_1')]['data'][0]['date_start']);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
+    public function 如果給的時間格式不是陣列返回預設值()
+    {
+        $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')], ['DATE_START', 'DATE_STOP'], null,
+            (new DateTime())->modify('-6 day')->format('Y-m-d'));
+
+        $this->assertArrayHasKey('date_start', $result[env('ADOBJECT_ID_1')]['data'][0]);
+        $this->assertArrayHasKey('date_stop', $result[env('ADOBJECT_ID_1')]['data'][0]);
+    }
+
+    /**
+     * @group fbadsdk
+     * @test
+     */
     public function 同時間給予date_preset和time_range會以time_range為主要()
     {
         $result = FacebookAds::getInsightList($this->token, 'adaccount', [env('ADOBJECT_ID_1'), env('ADOBJECT_ID_2')], ['DATE_START', 'DATE_STOP'], 'last_month', [
