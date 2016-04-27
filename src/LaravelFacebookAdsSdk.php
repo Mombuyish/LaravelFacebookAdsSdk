@@ -139,7 +139,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
     {
         $this->validate($userFbToken, $ids, $parameters);
 
-        if ( (! empty($date_preset) && ! $this->inDatePreset($date_preset)) || ! $this->inAdsType($type) ) {
+        if ( (!empty($date_preset) && !$this->inDatePreset($date_preset)) || !$this->inAdsType($type) ) {
             throw new LaravelFacebookAdsSdkException(static::$exceptionMessage, 403);
         }
 
@@ -218,9 +218,13 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         ];
 
         //if time range does not empty, set time range and return.
-        if ( ! empty($time_range) && is_array($time_range)) {
+        if ( !empty($time_range) && is_array($time_range) ) {
+            if ( count($time_range) != 2 ) {
+                throw new LaravelFacebookAdsSdkException(static::$exceptionMessage, 403);
+            }
             $data = array_add($data, 'time_range.since', $time_range[0]);
-            $data = array_add($data, 'time_range.until', (count($time_range) != 2) ? (new DateTime())->format('Y-m-d') : $time_range[1]);
+            $data = array_add($data, 'time_range.until', $time_range[1]);
+
             return $data;
         }
 
@@ -228,6 +232,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         //if date_preset does not empty, set date preset and return.
         if ( !empty($date_preset) ) {
             $data = array_add($data, 'date_preset', $date_preset);
+
             return $data;
         }
 
