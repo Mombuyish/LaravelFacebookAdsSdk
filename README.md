@@ -51,12 +51,17 @@ Reference `FacebookAds\Object\Fields\InsightsFields` consts.
 
 By default.
 ```
-//DEFAULT:$parameters = ['IMPRESSIONS', 'SPEND'], $preset = 'last_30_days', $amount = 50
+//DEFAULT:$parameters = ['IMPRESSIONS', 'SPEND'], $preset = 'last_30_days', $time_range = null, $amount = 50
   FacebookAds::getInsightList($userFbToken, $type, $ids);
 ```
-Or you can do this:
+Example:
 ```
-  FacebookAds::getInsightList($userFbToken, $type, $ids, ['COST_PER_UNIQUE_CLICK', 'SPEND'], $preset = 'lifetime', $amount = 50);
+	FacebookAds::getInsightList($userFbToken, $type, $ids, 'last_month');
+	FacebookAds::getInsightList($userFbToken, $type, $ids, null, ['2015-01-01', '2015-03-01']);
+	
+	//Note
+	date_preset: his field is ignored if time_range or time_ranges is specified.
+	FacebookAds::getInsightList($userFbToken, $type, $ids, 'last_month', ['2015-01-01', '2015-03-01']); //you will get '2015-01-01', '2015-03-01' data.
 ```
 or you can do on string for one.
 ```
@@ -71,6 +76,9 @@ or you can do on string for one.
 //$preset @see https://developers.facebook.com/docs/marketing-api/reference/ad-campaign/insights/
 
 ```
+
+
+
 
 # Exceptions
 I add `LaravelFacebookAdsSdkException` to handle exceptions.
