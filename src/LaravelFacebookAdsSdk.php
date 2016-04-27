@@ -36,9 +36,12 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
     private $insightsFields;
 
 
-
-    public function __construct($config, AdAccountFields $accountFields, CampaignFields $campaignFields, InsightsFields $insightsFields)
-    {
+    public function __construct(
+        $config,
+        AdAccountFields $accountFields,
+        CampaignFields $campaignFields,
+        InsightsFields $insightsFields
+    ) {
         $this->config = $config;
         $this->accountFields = $accountFields;
         $this->campaignFields = $campaignFields;
@@ -116,30 +119,38 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      * @param $userFbToken
      * @param $type
      * @param $ids
-     * @param $parameters
-     * @param string $preset
+     * @param array $parameters
+     * @param string $date_preset
+     * @param null $time_range
      * @param int $amount
      * @return array
+     * @throws LaravelFacebookAdsSdkException
      */
-    public function getInsightList($userFbToken, $type, $ids, $parameters = ['IMPRESSIONS', 'SPEND'], $preset = 'last_30_days', $amount = 50) : Array
+    public function getInsightList(
+        $userFbToken,
+        $type,
+        $ids,
+        $parameters = ['IMPRESSIONS', 'SPEND'],
+        $date_preset = 'last_30_days',
+        $time_range = null,
+        $amount = 50
+    ) : Array
     {
         $this->validate($userFbToken, $ids, $parameters);
 
-        if ( ! $this->inDatePreset($preset) || ! $this->inAdsType($type)) {
+        if ( (! empty($date_preset) && ! $this->inDatePreset($date_preset)) || ! $this->inAdsType($type) ) {
             throw new LaravelFacebookAdsSdkException(static::$exceptionMessage, 403);
         }
 
         $fbApi = $this->init($userFbToken);
-        $fields = $this->getConstColumns((array)$parameters, 'Insights', false);
+        $fields = $this->getConstColumns((array) $parameters, 'Insights', false);
 
         $insightData = [];
-        foreach (array_chunk((array)$ids, $amount) as $chunkIds) {
+        foreach (array_chunk((array) $ids, $amount) as $chunkIds) {
 
-            foreach ($this->call("insights", "GET", [
-                "ids"    => $chunkIds,
-                "preset" => $preset,
-                "fields" => $fields,
-            ],
+            $data = $this->setData($chunkIds, $fields, $date_preset, $time_range);
+
+            foreach ($this->call("insights", "GET", $data,
                 $fbApi) as $fbId => $insight) {
                 $insightData[$fbId] = $insight;
             }
@@ -188,5 +199,37 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         $accountsCursor->setUseImplicitFetch(true);
 
         return $accountsCursor;
+    }
+
+    /**
+     * date preset or time range choose of one.
+     * @param $date_preset
+     * @param $time_range
+     * @param $chunkIds
+     * @param $fields
+     * @return array
+     */
+    protected function setData($chunkIds, $fields, $date_preset, $time_range)
+    {
+        $data = [
+            "ids"    => $chunkIds,
+            "fields" => $fields,
+        ];
+
+        //if time range does not empty, set time range and return.
+        if ( !empty($time_range) ) {
+            $data = array_add($data, 'time_range.since', $time_range[0]);
+            $data = array_add($data, 'time_range.until', $time_range[1]);
+            return $data;
+        }
+
+        //low weight.
+        //if date_preset does not empty, set date preset and return.
+        if ( !empty($date_preset) ) {
+            $data = array_add($data, 'date_preset', $date_preset);
+            return $data;
+        }
+
+        return $data;
     }
 }
