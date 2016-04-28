@@ -92,12 +92,11 @@ class LaravelFacebookAdsSdkTest extends TestCase
      */
     public function 給陣列取得AdAccountList給予相對應欄位內容()
     {
-        $excepted = ['balance' => 23862, 'name' => $this->username];
+        $excepted = ['name' => $this->username];
 
-        $result = FacebookAds::getAdAccountList($this->token, ['BALANCE', 'NAME']);
+        $result = FacebookAds::getAdAccountList($this->token, ['NAME']);
 
         $this->assertEquals($excepted, [
-            'balance' => $result[1]->balance,
             'name'    => $result[1]->name,
         ]);
     }

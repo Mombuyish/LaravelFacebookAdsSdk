@@ -220,7 +220,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         //if time range does not empty, set time range and return.
         if ( !empty($time_range) && is_array($time_range) ) {
             if ( count($time_range) != 2 ) {
-                throw new LaravelFacebookAdsSdkException(static::$exceptionMessage, 403);
+                throw new LaravelFacebookAdsSdkException('Time range format does not match.', 403);
             }
             $data = array_add($data, 'time_range.since', $time_range[0]);
             $data = array_add($data, 'time_range.until', $time_range[1]);
