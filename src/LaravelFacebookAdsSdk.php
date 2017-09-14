@@ -6,10 +6,10 @@ use DateTime;
 use FacebookAds\Api;
 use FacebookAds\Http\Exception\RequestException;
 use FacebookAds\Object\AdAccount;
-use FacebookAds\Object\AdUser;
+use FacebookAds\Object\AdAccountUser;
 use FacebookAds\Object\Fields\AdAccountFields;
 use FacebookAds\Object\Fields\CampaignFields;
-use FacebookAds\Object\Fields\InsightsFields;
+use FacebookAds\Object\Fields\AdsInsightsFields;
 
 class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
 {
@@ -32,21 +32,21 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      */
     private $campaignFields;
     /**
-     * @var InsightsFields
+     * @var AdsInsightsFields
      */
-    private $insightsFields;
+    private $AdsInsightsFields;
 
 
     public function __construct(
         $config,
         AdAccountFields $accountFields,
         CampaignFields $campaignFields,
-        InsightsFields $insightsFields
+        AdsInsightsFields $AdsInsightsFields
     ) {
         $this->config = $config;
         $this->accountFields = $accountFields;
         $this->campaignFields = $campaignFields;
-        $this->insightsFields = $insightsFields;
+        $this->AdsInsightsFields = $AdsInsightsFields;
     }
 
     /**
@@ -190,7 +190,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
      */
     private function getAdAccountsBySelf($userFbToken, $parameters)
     {
-        $user = new AdUser(static::$graphApiUrl, $this->init($userFbToken));
+        $user = new AdAccountUser(static::$graphApiUrl, $this->init($userFbToken));
 
         try {
             $accountsCursor = $user->getAdAccounts($this->getConstColumns((array) $parameters, 'AdAccount'));
