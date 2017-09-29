@@ -6,25 +6,29 @@ namespace Yish\LaravelFacebookAdsSdk;
 abstract class FacebookConstField
 {
     /**
-     * see https://developers.facebook.com/docs/marketing-api/reference/ad-campaign/insights/
+     * see https://developers.facebook.com/docs/marketing-api/reference/ad-campaign-group/insights/
      * date_preset
      */
     const date_preset = [
         'today',
         'yesterday',
-        'last_3_days',
-        'this_week',
-        'last_week',
-        'last_7_days',
-        'last_14_days',
-        'last_28_days',
-        'last_30_days',
-        'last_90_days',
         'this_month',
         'last_month',
         'this_quarter',
-        'last_3_months',
         'lifetime',
+        'last_3d',
+        'last_7d',
+        'last_14d',
+        'last_28d',
+        'last_30d',
+        'last_90d',
+        'last_week_mon_sun',
+        'last_week_sun_sat',
+        'last_quarter',
+        'last_year',
+        'this_week_mon_today',
+        'this_week_sun_today',
+        'this_year',
     ];
 
     /**

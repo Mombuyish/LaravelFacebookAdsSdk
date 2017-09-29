@@ -132,10 +132,10 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         $type,
         $ids,
         $parameters = ['IMPRESSIONS', 'SPEND'],
-        $date_preset = 'last_30_days',
+        $date_preset = 'last_30d',
         $time_range = null,
         $amount = 50
-    ) : Array
+    )
     {
         $this->validate($userFbToken, $ids, $parameters);
 
@@ -144,7 +144,7 @@ class LaravelFacebookAdsSdk extends AbstractFacebookAdsSdk
         }
 
         $fbApi = $this->init($userFbToken);
-        $fields = $this->getConstColumns((array) $parameters, 'Insights', false);
+        $fields = $this->getConstColumns((array) $parameters, 'AdsInsights', false);
 
         $insightData = [];
         foreach (array_chunk((array) $ids, $amount) as $chunkIds) {
