@@ -47,7 +47,7 @@ or you can do on string for one.
   FacebookAds::getCampaignList($facebookToken, $account_id, 'OBJECTIVE');
 ```
 
-Reference `FacebookAds\Object\Fields\InsightsFields` consts.
+Reference `FacebookAds\Object\Fields\AdInsightsFields` consts.
 
 By default.
 ```
