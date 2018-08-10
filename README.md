@@ -1,7 +1,7 @@
 # LaravelFacebookAdsSdk
 This project is developing now.
 
-**update! facebook ads api 2.10 !**
+**update! facebook ads api 3.1 !**
 
 # Installation
 ```
